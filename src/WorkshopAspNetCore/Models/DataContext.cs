@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace WorkshopAspNetCore
+namespace WorkshopAspNetCore.Models
 {
     public class DataContext : DbContext
     {

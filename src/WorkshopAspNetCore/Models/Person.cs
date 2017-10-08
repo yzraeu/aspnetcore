@@ -1,4 +1,4 @@
-namespace WorkshopAspNetCore
+namespace WorkshopAspNetCore.Models
 {
     public class Person
     {
