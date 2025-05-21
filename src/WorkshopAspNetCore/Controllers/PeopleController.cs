@@ -28,10 +28,15 @@ namespace WorkshopAspNetCore.Controllers
         [HttpPost]
         public async Task<IActionResult> PostPeople([FromBody] Person person)
         {
-            var newPerson = await _data.People.AddAsync(person);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _data.People.AddAsync(person);
             await _data.SaveChangesAsync();
 
-            return Ok();
+            return CreatedAtAction(nameof(GetPeople), new { id = person.Id }, person);
         }
     }
 }

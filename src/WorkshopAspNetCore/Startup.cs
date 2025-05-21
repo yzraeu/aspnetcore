@@ -8,7 +8,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Diagnostics;
 using WorkshopAspNetCore.Models;
+using Newtonsoft.Json;
 
 namespace WorkshopAspNetCore
 {
@@ -42,6 +45,30 @@ namespace WorkshopAspNetCore
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler(appBuilder =>
+                {
+                    appBuilder.Run(async context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        context.Response.ContentType = "application/json";
+                        var errorFeature = context.Features.Get<IExceptionHandlerFeature>();
+                        if (errorFeature != null)
+                        {
+                            var logger = loggerFactory.CreateLogger("ExceptionHandler");
+                            logger.LogError(errorFeature.Error, "Unhandled exception.");
+                        }
+                        var message = JsonConvert.SerializeObject(new { error = "An unexpected error occurred. Please try again later." });
+                        await context.Response.WriteAsync(message);
+                    });
+                });
+            }
 
             app.UseMvc();
         }
